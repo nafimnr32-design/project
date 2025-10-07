@@ -87,7 +87,10 @@ async function loadDeviceList() {
               <td>${device.tank_shape ? `${device.tank_shape} (${device.height_cm}cm)` : 'N/A'}</td>
               <td>${formatDate(device.updated_at)}</td>
               <td>
-                <button class="btn btn-small btn-primary" onclick="window.router.navigate('/device/edit?id=${device.device_id}')">Edit</button>
+                <div class="actions">
+                  <button class="btn btn-small btn-primary" onclick="window.router.navigate('/device/telemetry?id=${device.device_id}')">View</button>
+                  <button class="btn btn-small btn-secondary" onclick="window.router.navigate('/device/edit?id=${device.device_id}')">Edit</button>
+                </div>
               </td>
             </tr>
           `).join('')}

@@ -9,14 +9,6 @@ export async function renderSmartLightDashboard(project) {
     .select('*')
     .eq('project_id', project.project_id);
 
-  const { data: samples } = await supabase
-    .from('sl_samples')
-    .select('*')
-    .eq('project_id', project.project_id)
-    .order('ts_utc', { ascending: false })
-    .limit(100);
-
-  const latestSample = samples && samples.length > 0 ? samples[0] : null;
 
   app.innerHTML = `
     <div class="navbar">
@@ -40,22 +32,6 @@ export async function renderSmartLightDashboard(project) {
         </p>
       </div>
 
-      ${latestSample ? `
-        <div class="grid grid-3">
-          <div class="stat-card">
-            <div class="stat-value">${latestSample.brightness || 0}%</div>
-            <div class="stat-label">Brightness</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value">${latestSample.power_w?.toFixed(1) || 0}W</div>
-            <div class="stat-label">Power Consumption</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value">${latestSample.color_temp || 0}K</div>
-            <div class="stat-label">Color Temperature</div>
-          </div>
-        </div>
-      ` : ''}
 
       <div class="card">
         <h2 class="card-title">Connected Devices</h2>
@@ -90,41 +66,6 @@ export async function renderSmartLightDashboard(project) {
           <div class="empty-state">
             <div class="empty-state-icon">📱</div>
             <p>No devices connected to this project</p>
-          </div>
-        `}
-      </div>
-
-      <div class="card">
-        <h2 class="card-title">Telemetry Data</h2>
-        ${samples && samples.length > 0 ? `
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>Timestamp</th>
-                  <th>Device</th>
-                  <th>Brightness (%)</th>
-                  <th>Power (W)</th>
-                  <th>Color Temp (K)</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${samples.map(sample => `
-                  <tr>
-                    <td>${formatDate(sample.ts_utc)}</td>
-                    <td style="font-family: monospace; font-size: 0.8rem;">${sample.device_id.substring(0, 12)}...</td>
-                    <td>${sample.brightness || 0}%</td>
-                    <td>${sample.power_w?.toFixed(2) || 0}W</td>
-                    <td>${sample.color_temp || 0}K</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-        ` : `
-          <div class="empty-state">
-            <div class="empty-state-icon">📊</div>
-            <p>No telemetry data available yet</p>
           </div>
         `}
       </div>

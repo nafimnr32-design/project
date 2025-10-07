@@ -9,14 +9,6 @@ export async function renderWaterPumpDashboard(project) {
     .select('*')
     .eq('project_id', project.project_id);
 
-  const { data: samples } = await supabase
-    .from('wp_samples')
-    .select('*')
-    .eq('project_id', project.project_id)
-    .order('ts_utc', { ascending: false })
-    .limit(100);
-
-  const latestSample = samples && samples.length > 0 ? samples[0] : null;
 
   app.innerHTML = `
     <div class="navbar">
@@ -40,22 +32,6 @@ export async function renderWaterPumpDashboard(project) {
         </p>
       </div>
 
-      ${latestSample ? `
-        <div class="grid grid-3">
-          <div class="stat-card">
-            <div class="stat-value">${latestSample.level_pct?.toFixed(1) || 0}%</div>
-            <div class="stat-label">Water Level</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value">${latestSample.pump_on ? 'ON' : 'OFF'}</div>
-            <div class="stat-label">Pump Status</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-value">${latestSample.net_flow_lpm?.toFixed(2) || 0}</div>
-            <div class="stat-label">Net Flow (L/min)</div>
-          </div>
-        </div>
-      ` : ''}
 
       <div class="card">
         <h2 class="card-title">Connected Devices</h2>
@@ -92,45 +68,6 @@ export async function renderWaterPumpDashboard(project) {
           <div class="empty-state">
             <div class="empty-state-icon">📱</div>
             <p>No devices connected to this project</p>
-          </div>
-        `}
-      </div>
-
-      <div class="card">
-        <h2 class="card-title">Telemetry Data</h2>
-        ${samples && samples.length > 0 ? `
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>Timestamp</th>
-                  <th>Device</th>
-                  <th>Level %</th>
-                  <th>Pump</th>
-                  <th>Flow Out (L/min)</th>
-                  <th>Flow In (L/min)</th>
-                  <th>Net Flow (L/min)</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${samples.map(sample => `
-                  <tr>
-                    <td>${formatDate(sample.ts_utc)}</td>
-                    <td style="font-family: monospace; font-size: 0.8rem;">${sample.device_id.substring(0, 12)}...</td>
-                    <td>${sample.level_pct?.toFixed(1) || 0}%</td>
-                    <td><span class="badge ${sample.pump_on ? 'badge-success' : 'badge-secondary'}">${sample.pump_on ? 'ON' : 'OFF'}</span></td>
-                    <td>${sample.flow_out_lpm?.toFixed(2) || 0}</td>
-                    <td>${sample.flow_in_lpm?.toFixed(2) || 0}</td>
-                    <td>${sample.net_flow_lpm?.toFixed(2) || 0}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-        ` : `
-          <div class="empty-state">
-            <div class="empty-state-icon">📊</div>
-            <p>No telemetry data available yet</p>
           </div>
         `}
       </div>
